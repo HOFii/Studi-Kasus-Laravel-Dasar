@@ -424,22 +424,22 @@
 
 -   Tampilan login
 
-    ![login](image.png)
+    ![login](img/image.png)
 
 -   Tampilan login ketika user/pass salah
 
-    ![loginFail](image-1.png)
+    ![loginFail](img/image-1.png)
 
 -   Tampilan berhasil login
 
-    ![loginS](image-2.png)
+    ![loginS](img/image-2.png)
 
 -   Tambah todo
 
-    ![alt text](image-3.png)
+    ![alt text](img/image-3.png)
 
 -   Tambah todo kosong
-    ![alt text](image-4.png)
+    ![alt text](img/image-4.png)
 
 ---
 
