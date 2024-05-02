@@ -254,4 +254,199 @@
 
 ---
 
-### 8.
+### 8. Membuat Logic Menghapus Todo
+
+-   Kode menghapus todo
+
+    ```PHP
+        public function removeTodo(string $todoId);
+    ```
+
+    ```PHP
+    ublic function removeTodo(string $todoId)
+    {
+        $todolist = Session::get("todolist");
+
+        foreach ($todolist as $index => $value) {
+            if ($value['id'] == $todoId) {
+                unset($todolist[$index]);
+                break;
+            }
+        }
+
+        Session::put("todolist", $todolist);
+    }
+    ```
+
+-   Unit test menghapus todo
+
+    ```PHP
+        public function testRemoveTodo()
+    {
+        $this->todolistService->saveTodo("1", "Gusti");
+        $this->todolistService->saveTodo("2", "Elaina"); // Tambah todo
+
+        self::assertEquals(2, sizeof($this->todolistService->getTodolist()));
+
+        $this->todolistService->removeTodo("3"); // hapus todo yang tidak ada
+
+        self::assertEquals(2, sizeof($this->todolistService->getTodolist()));
+
+        $this->todolistService->removeTodo("1"); // hapus todo yang ada
+
+        self::assertEquals(1, sizeof($this->todolistService->getTodolist()));
+
+        $this->todolistService->removeTodo("2");
+
+        self::assertEquals(0, sizeof($this->todolistService->getTodolist()));
+    }
+    ```
+
+---
+
+### 9. Membuat Todolist Controller
+
+-   Kode todo controller
+
+    ```PHP
+    $todo = $request->input("todo");
+
+        if (empty($todo)) {
+            $todolist = $this->todolistService->getTodolist();
+            return response()->view("todolist.todolist", [
+                "title" => "Todolist",
+                "todolist" => $todolist,
+                "error" => "Todo is required"
+            ]);
+        }
+    ```
+
+---
+
+### 10. Membuat Todolist Page
+
+-   Kode membuat todolist page
+
+    ```PHP
+    public function todoList(Request $request)
+    {
+
+    } // app/Controllers
+    ```
+
+    ```PHP
+    Route::controller(\App\Http\Controllers\TodolistController::class)->group(function () {
+        Route::get('/todolist', 'todoList');
+        Route::post('/todolist', 'addTodo');
+        Route::post('/todolist/{id}/delete', 'removeTodo');
+    });
+    ```
+
+---
+
+### 11. Membuat Aksi Tambah & Hapus Todo
+
+-   Kode aksi tambah todo
+
+    ```PHP
+    public function addTodo(Request $request)
+    {
+        $todo = $request->input("todo");
+
+        if (empty($todo)) {
+            $todolist = $this->todolistService->getTodolist();
+            return response()->view("todolist.todolist", [
+                "title" => "Todolist",
+                "todolist" => $todolist,
+                "error" => "Todo is required"
+            ]);
+        }
+
+        $this->todolistService->saveTodo(uniqid(), $todo);
+
+        return redirect()->action([TodolistController::class, 'todoList']);
+    } // app/Controllers
+
+    ```
+
+-   Kode aksi hapus todo
+
+    ```PHP
+    public function removeTodo(Request $request, string $todoId): RedirectResponse
+    {
+        $this->todolistService->removeTodo($todoId);
+        return redirect()->action([TodolistController::class, 'todoList']);
+    }
+    ```
+
+---
+
+### 12. Unit Test Aksi Tambah & Hapus Todo
+
+-   Unit test tambah
+
+    ```PHP
+    public function testAddTodoSuccess()
+    {
+        $this->withSession([
+            "user" => "akbar"
+        ])->post("/todolist", [
+            "todo" => "Gusti"
+        ])->assertRedirect("/todolist");
+    }
+    ```
+
+-   Unit test aksi hapus
+
+    ```PHP
+    public function testRemoveTodolist()
+    {
+        $this->withSession([
+            "user" => "akbar",
+            "todolist" => [
+                [
+                    "id" => "1",
+                    "todo" => "Gusti"
+                ],
+                [
+                    "id" => "2",
+                    "todo" => "Elaina"
+                ]
+            ]
+        ])->post("/todolist/1/delete")
+            ->assertRedirect("/todolist");
+    }
+    ```
+
+---
+
+### 13. Tampilan Login
+
+-   Tampilan login
+
+    ![login](image.png)
+
+-   Tampilan login ketika user/pass salah
+
+    ![loginFail](image-1.png)
+
+-   Tampilan berhasil login
+
+    ![loginS](image-2.png)
+
+-   Tambah todo
+
+    ![alt text](image-3.png)
+
+-   Tambah todo kosong
+    ![alt text](image-4.png)
+
+---
+
+## PERTANYAAN & CATATAN TAMBAHAN
+
+-   tidak ada
+
+## KESIMPULAN
+
+-
