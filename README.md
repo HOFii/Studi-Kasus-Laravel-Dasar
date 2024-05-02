@@ -24,7 +24,7 @@
 
 -   Dalam studi kasus ini, saya tidak menggunakan database untuk menyimpan user login dan todo,
 
--   Dan untuk logic login nya diganti dengan menggunakan dengan menggunakan `array` untuk user login.
+-   Dan untuk logic login nya diganti dengan menggunakan dengan menggunakan session `array` untuk user login.
 
     ```PHP
      private array $users = [
@@ -133,3 +133,125 @@
     Route::post('/logout', 'doLogout')->middleware([\App\Http\Middleware\OnlyMemberMiddleware::class]);
     });
     ```
+
+---
+
+### 5. Membuat Todolist Service
+
+-   Todolist service
+
+    ```PHP
+    private TodolistService $todolistService;
+
+    public function __construct(TodolistService $todolistService)
+    {
+        $this->todolistService = $todolistService;
+    }
+    ```
+
+-   Unit test todolist service
+
+    ```PHP
+    private TodolistService $todolistService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->todolistService = $this->app->make(TodolistService::class);
+    }
+    public function testTodolistNotNull()
+    {
+        self::assertNotNull($this->todolistService);
+    }
+    ```
+
+---
+
+### 6. Membuat logic Menambah Todo
+
+-   Kode menambah todo
+
+    ```PHP
+        public function saveTodo(string $id, string $todo): void; // app/Services
+    ```
+
+    ```PHP
+    public function saveTodo(string $id, string $todo): void
+    {
+        if (!Session::exists("todolist")) {
+            Session::put("todolist", []);
+        }
+
+        Session::push("todolist", [
+            "id" => $id,
+            "todo" => $todo
+        ]);
+    } // app/Services/Impl
+    ```
+
+-   Unit test menambah todo
+
+    ```PHP
+    public function testSaveTodo()
+    {
+        $this->todolistService->saveTodo("2", "Gusti");
+
+        $todolist = Session::get("todolist");
+        foreach ($todolist as $value) {
+            self::assertEquals("2", $value['id']);
+            self::assertEquals("Gusti", $value['todo']);
+        }
+    }
+    ```
+
+---
+
+### 7. Membuat Logic Mengambil Todo
+
+-   Kode mengambil todo
+
+    ```PHP
+        public function getTodolist(): array;
+    ```
+
+    ```PHP
+     public function getTodolist(): array
+    {
+        return Session::get("todolist", []);
+    }
+    ```
+
+-   Unit test mengambil todo
+
+    ```PHP
+    // Ketika todo kosong
+    public function testGetTodolistEmpty()
+    {
+        self::assertEquals([], $this->todolistService->getTodolist());
+    }
+
+    // Ketika ada todo
+    public function testGetTodolistNotEmpty()
+    {
+        $expected = [
+            [
+                "id" => "1",
+                "todo" => "Gusti"
+            ],
+            [
+                "id" => "2",
+                "todo" => "Elaina"
+            ]
+        ];
+
+        $this->todolistService->saveTodo("1", "Gusti");
+        $this->todolistService->saveTodo("2", "Elaina");
+
+        self::assertEquals($expected, $this->todolistService->getTodolist());
+    }
+    ```
+
+---
+
+### 8.
